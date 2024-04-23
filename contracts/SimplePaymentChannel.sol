@@ -35,7 +35,11 @@ contract SimplePaymentChannel {
   }
 
   function recoverSigner(bytes32 message, bytes memory sig) internal pure returns (address) {
+    // splitSignature函数使用 内联汇编 来完成把各部分分离出来（使用 web3.js签名的数据，r, s 和 v 是连接在一起的）
     (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig);
+    // 在Solidity中还原消息签名者
+    // 通常, ECDSA（椭圆曲线数字签名算法） 包含两个参数, r and s. 在以太坊中签名包含第三个参数 v, 它可以用于验证哪一个账号的私钥签署了这个消息。
+    // 通过 ecrecover 函数, 我们可以从签名中恢复签名者的地址。
     return ecrecover(message, v, r, s);
   }
 
